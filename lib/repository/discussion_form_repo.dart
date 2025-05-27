@@ -13,6 +13,7 @@ class DiscussionFormRepo{
       await firestore.collection("Messages").doc(discussionForm.id).set({
         "id": discussionForm.id,
         "userID": discussionForm.userID,
+        "userName": discussionForm.userName,
         "message": discussionForm.message,
         "dateTime": discussionForm.dateTime,
 

@@ -5,7 +5,9 @@ import 'package:intl/intl.dart';
 import '../../constants/app_export.dart';
 
 class DiscussionFormScreen extends StatefulWidget {
-  const DiscussionFormScreen({super.key});
+  final String userId;
+
+  const DiscussionFormScreen({super.key, required this.userId});
 
   @override
   State<DiscussionFormScreen> createState() => _DiscussionFormScreenState();
@@ -59,22 +61,34 @@ class _DiscussionFormScreenState extends State<DiscussionFormScreen> {
                               color: isCurrentUser
                                   ? Theme.of(context).colorScheme.secondary
                                   : Theme.of(context).colorScheme.primary,
-                              borderRadius:  isCurrentUser
-                                  ?  const BorderRadius.only(
-                                topLeft: Radius.circular(12),
-                                topRight: Radius.circular(12),
-                                bottomLeft: Radius.circular(12),
-                              ) : const BorderRadius.only(
-                                topLeft: Radius.circular(12),
-                                topRight: Radius.circular(12),
-                                bottomRight: Radius.circular(12),
-                              ),
+                              borderRadius: isCurrentUser
+                                  ? const BorderRadius.only(
+                                      topLeft: Radius.circular(12),
+                                      topRight: Radius.circular(12),
+                                      bottomLeft: Radius.circular(12),
+                                    )
+                                  : const BorderRadius.only(
+                                      topLeft: Radius.circular(12),
+                                      topRight: Radius.circular(12),
+                                      bottomRight: Radius.circular(12),
+                                    ),
                             ),
                             child: Padding(
                               padding: const EdgeInsets.all(12.0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  Text(
+                                    message.userName!,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium!
+                                        .copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.7,
+                                        ),
+                                  ),
                                   Text(
                                     message.message!,
                                     style: Theme.of(context)
@@ -120,7 +134,8 @@ class _DiscussionFormScreenState extends State<DiscussionFormScreen> {
                             final viewModel =
                                 Provider.of<DiscussionFormViewModel>(context,
                                     listen: false);
-                            final result = await viewModel.sendMessage(message);
+                            final result = await viewModel.sendMessage(
+                                message, widget.userId);
                             if (result == "Success") {
                               messageController.clear();
                             } else {

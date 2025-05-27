@@ -32,13 +32,14 @@ class DiscussionFormViewModel extends ChangeNotifier {
     return randomString.substring(0, length); // Truncate to desired length
   }
 
-  Future<String> sendMessage(String message) async {
+  Future<String> sendMessage(String message, String userID) async {
     try {
-      final userValue = await _authRepo.getUser(_currentUser.currentUser!.uid);
+      final userValue = await _authRepo.getUser(userID);
       String randomId = generateRandomId(20);
       DiscussionFormModel discussionFormModel = DiscussionFormModel(
         id: randomId,
         userID: userValue.id,
+        userName: userValue.name,
         message: message,
         dateTime: DateTime.now(),
       );

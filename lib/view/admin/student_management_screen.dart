@@ -59,8 +59,8 @@ class _StudentManagementScreenState extends State<StudentManagementScreen> {
         leading: IconButton(
             onPressed: () {
               Navigator.of(context).pop();
-              Provider.of<StudentViewModel>(context, listen: false)
-                  .clearStudentNamesList();
+              // Provider.of<StudentViewModel>(context, listen: false)
+              //     .clearStudentNamesList();
             },
             icon: Icon(Icons.arrow_back_ios_new)),
         actions: [

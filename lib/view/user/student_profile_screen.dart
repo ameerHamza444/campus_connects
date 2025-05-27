@@ -6,11 +6,12 @@ import 'package:campus_connects/widgets/custom_setting_field.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
-
 class StudentProfileScreen extends StatefulWidget {
+  final String userId;
+
   const StudentProfileScreen({
     super.key,
+    required this.userId,
   });
 
   @override
@@ -21,14 +22,14 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<StudentViewModel>(context, listen: false).getCurrentStudentCalling(context);
-
+    // Provider.of<StudentViewModel>(context, listen: false)
+    //     .getCurrentStudentCalling(context, widget.userId);
   }
-
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<StudentViewModel>(context, listen: false).getCurrentStudentCalling(context);
+    Provider.of<StudentViewModel>(context, listen: false).getCurrentStudentCalling(context, widget.userId);
+    Provider.of<StudentViewModel>(context, listen: false).getCurrentUsserCalling(context, widget.userId);
     var mediaQuery = MediaQuery.of(context).size;
     return Scaffold(
         appBar: AppBar(
@@ -59,24 +60,31 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                       Expanded(
                         flex: 3,
                         child: Consumer<StudentViewModel>(
-                          builder: (context, consumer, c) {
-                            return consumer.isLoadingCurrentStudent == true ?
-                                const LinearProgressIndicator()
-                                : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  consumer.studentManagementModel!.studentName ?? "",
-                                  style: Theme.of(context).textTheme.titleLarge,
-                                ),
-                                Text(
-                                  consumer.userEmail ?? "",
-                                  style: Theme.of(context).textTheme.titleSmall,
-                                ),
-                              ],
-                            );
-                          }
-                        ),
+                            builder: (context, consumer, c) {
+                          return consumer.isLoadingCurrentStudent == true
+                              ? const LinearProgressIndicator()
+                              : Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      consumer.userModel!.name ?? "",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge!.copyWith(
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    Text(
+                                      consumer.userModel!.email ?? "",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleSmall!.copyWith(
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                );
+                        }),
                       )
                     ],
                   ),
@@ -87,43 +95,49 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                     shrinkWrap: true,
                     children: [
                       Consumer<StudentViewModel>(
-                        builder: (context, consumer, c) {
-                          return SettingFields(
-                            icon: Icons.info_outline_rounded,
-                            title: "Student Information",
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: Text('Student Details'),
-                                    content: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text('Name: ${consumer.studentManagementModel!.studentName}'),
-                                        Text('Department: ${consumer.studentManagementModel!.departmentName}'),
-                                        Text('Advisor: ${consumer.studentManagementModel!.advisor}'),
-                                        Text('Semester: ${consumer.studentManagementModel!.semester}'),
-                                        Text('Grades: ${consumer.studentManagementModel!.grades}'),
-                                        Text('CGPA: ${consumer.studentManagementModel!.cgpa}'),
-                                        Text('DOB: ${consumer.studentManagementModel!.dob}'),
-                                      ],
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: Text('Close'),
-                                      ),
+                          builder: (context, consumer, c) {
+                        return SettingFields(
+                          icon: Icons.info_outline_rounded,
+                          title: "Student Information",
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text('Student Details'),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                          'Name: ${consumer.studentManagementModel!.studentName}'),
+                                      Text(
+                                          'Department: ${consumer.studentManagementModel!.departmentName}'),
+                                      Text(
+                                          'Advisor: ${consumer.studentManagementModel!.advisor}'),
+                                      Text(
+                                          'Semester: ${consumer.studentManagementModel!.semester}'),
+                                      Text(
+                                          'Grades: ${consumer.studentManagementModel!.grades}'),
+                                      Text(
+                                          'CGPA: ${consumer.studentManagementModel!.cgpa}'),
+                                      Text(
+                                          'DOB: ${consumer.studentManagementModel!.dob}'),
                                     ],
-                                  );
-                                },
-                              );
-
-                            },
-                          );
-                        }
-                      ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: Text('Close'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        );
+                      }),
                       SettingFields(
                         icon: Icons.local_activity_outlined,
                         title: "Clubs & Activity Sign-Up",
@@ -135,16 +149,29 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                   contentPadding: const EdgeInsets.all(20),
                                   title: const Text("Clubs & Activity Sign-Up"),
                                   children: [
-                                    const Text("Please Register In Current Activity or Club"),
+                                    const Text(
+                                        "Please Register In Current Activity or Club"),
                                     const SizedBox(
                                       height: 10,
                                     ),
                                     Row(
-                                    children: [
-                                      TextButton(onPressed: () {Navigator.of(context).pushNamed(AppRoutes.clubNactitvitySignUpScreen);}, child: const Text("Enroll Now")),
-                                      const SizedBox(width: 20,),
-                                      TextButton(onPressed: () {Navigator.pop(context);}, child: const Text("Cancel")),
-                                    ],
+                                      children: [
+                                        TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pushNamed(
+                                                  AppRoutes
+                                                      .clubNactitvitySignUpScreen);
+                                            },
+                                            child: const Text("Enroll Now")),
+                                        const SizedBox(
+                                          width: 20,
+                                        ),
+                                        TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: const Text("Cancel")),
+                                      ],
                                     )
                                   ],
                                 );
@@ -167,19 +194,25 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                       final Uri emailUri = Uri(
                                         scheme: 'mailto',
                                         path: 'admin@gmail.com',
-                                        query: 'subject=Emergency&body=Hello, I need help',
+                                        query:
+                                            'subject=Emergency&body=Hello, I need help',
                                       );
                                       if (await canLaunchUrl(emailUri)) {
                                         await launchUrl(emailUri);
                                       } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Could not open email app')),
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                              content: Text(
+                                                  'Could not open email app')),
                                         );
                                       }
                                     },
                                     child: const Text(
                                       "E-mail: admin@gmail.com",
-                                      style: TextStyle(color: Colors.blue,),
+                                      style: TextStyle(
+                                        color: Colors.blue,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(height: 10),
@@ -192,8 +225,11 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                       if (await canLaunchUrl(phoneUri)) {
                                         await launchUrl(phoneUri);
                                       } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Could not make a call')),
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                              content: Text(
+                                                  'Could not make a call')),
                                         );
                                       }
                                     },
@@ -212,7 +248,8 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                         icon: Icons.map_outlined,
                         title: "Campus Map & Navigation",
                         onTap: () {
-                          Navigator.of(context).pushNamed(AppRoutes.mapNnavigationScreen);
+                          Navigator.of(context)
+                              .pushNamed(AppRoutes.mapNnavigationScreen);
                         },
                       ),
                       SettingFields(

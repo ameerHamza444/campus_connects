@@ -1,6 +1,7 @@
 import 'package:campus_connects/constants/app_export.dart';
 import 'package:campus_connects/constants/constants.dart';
 import 'package:campus_connects/models/student_management_model.dart';
+import 'package:campus_connects/models/user_model.dart';
 import 'package:campus_connects/repository/auth_repo.dart';
 import 'package:campus_connects/repository/student_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,10 +19,18 @@ class StudentViewModel extends ChangeNotifier {
   final _currentUser = FirebaseAuth.instance.currentUser;
   StudentManagementModel? _studentManagementModel;
   StudentManagementModel? get studentManagementModel => _studentManagementModel;
+  UserModel? _userModel;
+  UserModel? get userModel => _userModel;
 
   String _userEmail = "";
   String get userEmail => _userEmail;
 
+  String _userName = "";
+  String get userName => _userName;
+
+  final Map<String, String> _studentMap = {};
+  Map<String, String> get studentMap => _studentMap;
+  List<String> get studentNames => _studentMap.keys.toList();
   String _selectedStudentName = "";
   String get selectedStudentName => _selectedStudentName;
   String _selectedStudentID = "";
@@ -33,13 +42,13 @@ class StudentViewModel extends ChangeNotifier {
 
   bool get isLoadingCurrentStudent => _isLoadingCurrentStudent;
 
-  List<String> _studentNames = [];
+  // List<String> _studentNames = [];
+  //
+  // List<String> get studentNames => _studentNames;
 
-  List<String> get studentNames => _studentNames;
-
-  List<String> _studentID = [];
-
-  List<String> get studentID => _studentID;
+  // List<String> _studentID = [];
+  //
+  // List<String> get studentID => _studentID;
 
   bool _isDeletingStudent = false;
 
@@ -49,14 +58,17 @@ class StudentViewModel extends ChangeNotifier {
 
   setSelectedStudentName(String value){
     _selectedStudentName = value;
+    _selectedStudentID = _studentMap[value] ?? '';
     notifyListeners();
+    print("Selected UserName: $_selectedStudentName");
+    print("Selected UserID: $_selectedStudentID");
   }
 
-  clearStudentNamesList(){
-    _studentNames.clear();
-    _studentID.clear();
-    notifyListeners();
-  }
+  // clearStudentNamesList(){
+  //   _studentNames.clear();
+  //   _studentID.clear();
+  //   notifyListeners();
+  // }
 
   setCreatingStudent(bool value) {
     _isCreatingStudent = value;
@@ -66,18 +78,22 @@ class StudentViewModel extends ChangeNotifier {
   Future<QuerySnapshot?> getAllUsersNamesCalling(BuildContext context) async {
     try {
       final value = await _studentRepo.getAllUsers();
-      _studentNames = value!.docs.map((doc) => doc.get("name") as String).toList();
-      _studentID = value.docs.map((doc) => doc.get("id") as String).toList();
-      print("Student Nanme: $_studentNames");
-      print("Student ID: $_studentID");
-      // ✅ Initialize selectedStudentName
-      if (_studentNames.isNotEmpty) {
-        _selectedStudentName = _studentNames.first;
-        _selectedStudentID = _studentID.first;
-      } else {
-        _selectedStudentName = "";
-        _selectedStudentID = "";
+      _studentMap.clear();
+      for (var doc in value!.docs) {
+        _studentMap[doc.get('name')] = doc.get('id');
       }
+      // _studentNames = value!.docs.map((doc) => doc.get("name") as String).toList();
+      // _studentID = value.docs.map((doc) => doc.get("id") as String).toList();
+      // print("Student Nanme: $_studentNames");
+      // print("Student ID: $_studentID");
+      // // ✅ Initialize selectedStudentName
+      // if (_studentNames.isNotEmpty) {
+      //   _selectedStudentName = _studentNames.first;
+      //   _selectedStudentID = _studentID.first;
+      // } else {
+      //   _selectedStudentName = "";
+      //   _selectedStudentID = "";
+      // }
 
       notifyListeners();
       return value;
@@ -100,15 +116,40 @@ class StudentViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<StudentManagementModel?> getCurrentStudentCalling(BuildContext context) async {
+  setUserInfo(name, email){
+    _userEmail = email;
+    _userName = name;
+    notifyListeners();
+  }
+
+  Future<UserModel?> getCurrentUsserCalling(BuildContext context, String userID) async {
     setLoadingCurrentUser(true);
     try{
-      final userID = await _s1.getSaveID(key: "userid");
-      final value = await _studentRepo.getCurrentUser(userID);
+      //final userID = await _s1.getSaveID(key: "userid");
+      print("User id: $userID");
       final userValue = await _authRepo.getUser(userID);
-      _studentManagementModel = StudentManagementModel.fromDocumentSnapshot(documentsnapshot: value!);
-      _userEmail = userValue.email!;
+      print("UserModel student: ${userValue.toJson()}");
+      _userModel = userValue;
       notifyListeners();
+      setLoadingCurrentUser(false);
+      return userValue;
+    }catch(error){
+      if (context.mounted) {
+        Constants.flushBarErrorMessages(error.toString(), context);
+      }
+      setLoadingCurrentUser(false);
+      return null;
+    }
+  }
+
+  Future<StudentManagementModel?> getCurrentStudentCalling(BuildContext context, String userID) async {
+    setLoadingCurrentUser(true);
+    try{
+      //final userID = await _s1.getSaveID(key: "userid");
+      print("User id: $userID");
+      final value = await _studentRepo.getCurrentStudent(userID);
+      _studentManagementModel = StudentManagementModel.fromDocumentSnapshot(documentsnapshot: value!);
+      print("Student Model student: ${_studentManagementModel!.toJson()}");
       setLoadingCurrentUser(false);
       return _studentManagementModel;
     }catch(error){

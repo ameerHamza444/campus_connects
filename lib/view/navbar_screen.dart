@@ -246,7 +246,7 @@ class _CustomAdminNavigationBarState extends State<CustomAdminNavigationBar> {
 
                 /// todo: Discussion Form
                 PersistentTabConfig(
-                  screen: DiscussionFormScreen(),
+                  screen: DiscussionFormScreen(userId: user.id!,),
                   item: ItemConfig(
                     icon: Icon(
                       Icons.chat_outlined,
@@ -277,7 +277,7 @@ class _CustomAdminNavigationBarState extends State<CustomAdminNavigationBar> {
 
                 /// todo: profile
                 PersistentTabConfig(
-                  screen: StudentProfileScreen(),
+                  screen: StudentProfileScreen(userId: user.id!,),
                   item: ItemConfig(
                     icon: Icon(
                       Icons.person,

@@ -23,7 +23,7 @@ class StudentRepo {
     return null;
   }
 
-  Future<DocumentSnapshot?> getCurrentUser(String id) async {
+  Future<DocumentSnapshot?> getCurrentStudent(String id) async {
     try {
       QuerySnapshot querySnapshot = await firestore
           .collection("Student")
